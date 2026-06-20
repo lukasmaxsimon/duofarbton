@@ -1,0 +1,550 @@
+/* --------------------------------------------------------------------------
+   Startseite (Home) — „Aus dem Weiß heraus, ins Weiß zurück."
+   -------------------------------------------------------------------------- */
+
+/* Fixierte Hero-Ebenen liegen hinter dem scrollenden Inhalt.
+   Wichtig: <body> muss transparent sein, damit diese z-index:-1-Ebenen
+   überhaupt sichtbar sind (sonst verdeckt der Body-Hintergrund sie). */
+.home-hero__bild-wrap,
+.home-hero__logo-wrap,
+.home-hero__scroll-hint,
+.home-hero__fade {
+  position: fixed;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* ---- Bild ---------------------------------------------------------------- */
+
+/* Äußere Hülle: spielt den Einstieg (aus Weiß auftauchen). */
+.home-hero__bild-wrap {
+  inset: 0;
+  overflow: hidden;
+  opacity: 0;
+  animation: hero-reveal 1.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
+}
+
+/* Innere Ebene: Fullscreen-Banner + Scroll-Verhalten (Zoom-in + Unschärfe). */
+.home-hero__bild {
+  position: absolute;
+  inset: 0;
+  background-image: url('/images/DuoFarbton_extend.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  /* Beim Scrollen nur ganz leicht heranzoomen + sanfter Parallax nach oben
+     (kein Blur). Die kleine Skalierung deckt den Versatz randlos ab.
+     Startet verzögert (--scroll-rest): erst das Logo, dann der Rest. */
+  transform: translateY(calc(var(--scroll-rest, 0) * -4vh))
+    scale(calc(1 + var(--scroll-rest, 0) * 0.06));
+  transform-origin: 50% 42%;
+  will-change: transform;
+}
+
+/* Einstieg: aus Weiß, unscharf und herangezoomt → scharf und ruhig. */
+@keyframes hero-reveal {
+  from {
+    opacity: 0;
+    transform: scale(1.12);
+    filter: blur(16px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
+}
+
+/* ---- Logo --------------------------------------------------------------- */
+
+/* Hülle: Position (zentriert, 30 % von unten) + Einstiegs-Animation. */
+.home-hero__logo-wrap {
+  left: 50%;
+  bottom: 30%;
+  transform: translateX(-50%);
+  opacity: 0;
+  animation: logo-rise 1.5s cubic-bezier(0.16, 1, 0.3, 1) 0.7s forwards;
+}
+
+/* Inline-SVG: feste Breite. overflow:hidden (SVG-Default) bildet die
+   „unsichtbare Kante", hinter der die Buchstaben oben verschwinden. */
+.home-hero__logo {
+  display: block;
+  width: min(462px, 66vw);
+  height: auto;
+}
+
+/* Einzelne Buchstaben: steigen beim Scrollen nach oben (eigener Startpunkt
+   --start, eigene Strecke --rise) und faden aus (eigenes Tempo --fade).
+   opacity wird vom Browser automatisch auf [0,1] begrenzt. */
+.home-hero__logo .ltr {
+  fill: #fff;
+  transform: translateY(
+    calc(-1 * max(0px, (var(--scroll-fade, 0) - var(--start, 0)) * var(--rise, 100px)))
+  );
+  opacity: calc(1 - (var(--scroll-fade, 0) - var(--start, 0)) * var(--fade, 2.5));
+  will-change: transform, opacity;
+}
+
+/* Einstieg: von unten aufsteigend, unscharf → scharf (Zentrierung beibehalten). */
+@keyframes logo-rise {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(60px);
+    filter: blur(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+    filter: blur(0);
+  }
+}
+
+/* ---- Scroll-Hinweis ----------------------------------------------------- */
+
+.home-hero__scroll-hint {
+  left: 50%;
+  bottom: 2.5rem;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: center;
+  opacity: 0;
+  /* Erscheint nach dem Einstieg … */
+  animation: hint-appear 1s ease 1.8s forwards;
+}
+
+/* … und verblasst beim Scrollen schnell wieder. */
+.home-hero__scroll-hint .home-hero__scroll-line {
+  display: block;
+  width: 1px;
+  height: 52px;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.9));
+  opacity: calc(1 - var(--scroll-fade, 0) * 2.5);
+  transform-origin: top;
+  animation: hint-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes hint-appear {
+  to {
+    opacity: 1;
+  }
+}
+
+/* Sanftes „Atmen" der Hinweis-Linie. */
+@keyframes hint-pulse {
+  0%,
+  100% {
+    transform: scaleY(0.5);
+    opacity: 0.4;
+  }
+  50% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+/* ---- Weiße Überblendung -------------------------------------------------- */
+
+.home-hero__fade {
+  inset: 0;
+  background: #fff;
+  /* Verzögert (erst nach der Logo-Animation). */
+  opacity: var(--scroll-rest, 0);
+}
+
+/* ---- Scroll-Abschnitte --------------------------------------------------- */
+
+/* Erster Abschnitt: transparent, zeigt das fixierte Hero-Bild.
+   170vh hoch: Die nächste Section beginnt bei 170vh und tritt damit bei 70vh
+   gescrollt von unten ein (170vh − 100vh Viewport). Die Hero-Animation läuft
+   parallel über die vollen 100vh (--scroll-fade erreicht 1 bei 100vh), die
+   Section schiebt sich also schon während des Weiß-Übergangs herein. */
+.home-spacer {
+  height: 170vh;
+}
+
+/* ---- Zweite Section: Programme-Carousel --------------------------------- */
+
+.home-programme {
+  position: relative;
+  background: #fff;
+  padding: clamp(4rem, 9vh, 7rem) clamp(1rem, 4vw, 3rem) clamp(6rem, 14vh, 10rem);
+}
+
+.home-programme__titel {
+  margin: 0 0 clamp(1.5rem, 4vh, 2.75rem);
+  font-size: clamp(1.6rem, 3.4vw, 2.6rem);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  color: #1a1a1a;
+}
+
+/* Reihe der Panels */
+.pc-row {
+  display: flex;
+  gap: 10px;
+  height: clamp(380px, 64vh, 640px);
+}
+
+/* Einzelnes Panel (ist ein Link) */
+.pc-panel {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: 16px;
+  text-decoration: none;
+  color: #fff;
+  /* Ruhiges, langsames Aufziehen — sanfte Kurve ohne „Schnapp". */
+  transition: flex-grow 1.2s cubic-bezier(0.33, 0, 0.2, 1);
+  outline: none;
+}
+
+/* Geöffnetes Panel zieht sich auf. */
+.pc-panel.is-active {
+  flex-grow: 4.5;
+}
+
+/* Tastatur-Fokus sichtbar machen. */
+.pc-panel:focus-visible {
+  box-shadow: 0 0 0 3px rgba(26, 26, 26, 0.55);
+}
+
+/* Bild (next/image fill) */
+.pc-panel__img {
+  object-fit: cover;
+  transform: scale(1.02);
+  transition: transform 1.6s cubic-bezier(0.33, 0, 0.2, 1), filter 1.1s ease;
+  filter: saturate(0.92) brightness(0.82);
+}
+
+.pc-panel.is-active .pc-panel__img {
+  transform: scale(1);
+  filter: saturate(1) brightness(0.92);
+}
+
+/* Abdunklung unten für Textlesbarkeit (nur im geöffneten Zustand stärker). */
+.pc-panel__scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.7) 0%,
+    rgba(0, 0, 0, 0.25) 40%,
+    rgba(0, 0, 0, 0) 70%
+  );
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+
+.pc-panel.is-active .pc-panel__scrim {
+  opacity: 1;
+}
+
+/* Index oben rechts */
+.pc-panel__index {
+  position: absolute;
+  top: 1rem;
+  right: 1.1rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  opacity: 0.75;
+  z-index: 2;
+}
+
+/* Vertikaler Titel im geschlossenen Zustand */
+.pc-panel__vtitel {
+  position: absolute;
+  left: 1.1rem;
+  bottom: 1.25rem;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-size: 0.95rem;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
+  transition: opacity 0.7s ease;
+  z-index: 2;
+}
+
+.pc-panel.is-active .pc-panel__vtitel {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Meta-Block im geöffneten Zustand */
+.pc-panel__meta {
+  position: absolute;
+  left: clamp(1.25rem, 2.4vw, 2.25rem);
+  right: clamp(1.25rem, 2.4vw, 2.25rem);
+  bottom: clamp(1.5rem, 3.5vh, 2.5rem);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.6rem;
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.9s ease 0.25s, transform 1.1s cubic-bezier(0.33, 0, 0.2, 1) 0.25s;
+  z-index: 2;
+}
+
+.pc-panel.is-active .pc-panel__meta {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.pc-panel__titel {
+  font-size: clamp(1.4rem, 2.6vw, 2.1rem);
+  line-height: 1.15;
+  font-weight: 500;
+}
+
+.pc-panel__sub {
+  font-size: clamp(0.9rem, 1.3vw, 1.05rem);
+  line-height: 1.4;
+  opacity: 0.9;
+  max-width: 46ch;
+}
+
+.pc-panel__cta {
+  margin-top: 0.5rem;
+  display: inline-block;
+  padding: 0.55rem 1.2rem;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 2px;
+  font-family: inherit;
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #fff;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.4s ease, color 0.4s ease;
+}
+
+.pc-panel__cta:hover,
+.pc-panel__cta:focus-visible {
+  background: #fff;
+  color: #1a1a1a;
+  outline: none;
+}
+
+/* ---- Mobil: kein Hover → gestapelte Karten mit sichtbaren Meta-Infos ----- */
+@media (max-width: 768px) {
+  .pc-row {
+    flex-direction: column;
+    height: auto;
+    gap: 14px;
+  }
+
+  .pc-panel {
+    flex: 1 1 auto;
+    height: 56vh;
+  }
+
+  /* Alle Panels zeigen ihre Infos. */
+  .pc-panel__scrim,
+  .pc-panel__meta {
+    opacity: 1;
+  }
+
+  .pc-panel__meta {
+    transform: none;
+  }
+
+  .pc-panel__vtitel {
+    display: none;
+  }
+
+  .pc-panel__img {
+    transform: scale(1);
+    filter: saturate(1) brightness(0.9);
+  }
+}
+
+/* ---- Bewegung reduzieren ------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .pc-panel,
+  .pc-panel__img,
+  .pc-panel__meta,
+  .pc-panel__scrim,
+  .pc-panel__vtitel {
+    transition: none;
+  }
+}
+
+/* ---- Barrierefreiheit: Bewegung reduzieren ------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .home-hero__bild-wrap,
+  .home-hero__logo-wrap,
+  .home-hero__scroll-hint,
+  .home-hero__scroll-line {
+    animation: none;
+    opacity: 1;
+  }
+
+  .home-hero__bild {
+    transform: none;
+    filter: none;
+  }
+
+  .home-hero__logo .ltr {
+    transform: none;
+    opacity: 1;
+  }
+
+  /* Sanfte Überblendung ins Weiß bleibt erhalten (kein Bewegungsreiz). */
+}
+
+/* ---- Programm-Sheet (Bottom-Sheet / Pop-up) ----------------------------- */
+
+.pm {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+}
+
+/* Abdunklung hinter dem Sheet */
+.pm__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.pm.is-open .pm__backdrop {
+  opacity: 1;
+}
+
+/* Das Sheet — fährt von unten herein */
+.pm__sheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 880px;
+  max-height: 90vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: #fff;
+  color: #1a1a1a;
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -16px 50px rgba(0, 0, 0, 0.28);
+  transform: translateY(100%);
+  transition: transform 0.55s cubic-bezier(0.33, 0, 0.2, 1);
+  outline: none;
+}
+
+.pm.is-open .pm__sheet {
+  transform: translateY(0);
+}
+
+/* Griff oben */
+.pm__griff {
+  display: block;
+  width: 44px;
+  height: 4px;
+  margin: 12px auto 0;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.18);
+}
+
+/* Schließen-Button */
+.pm__close {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.05);
+  color: #1a1a1a;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.25s ease;
+}
+
+.pm__close:hover,
+.pm__close:focus-visible {
+  background: rgba(0, 0, 0, 0.12);
+  outline: none;
+}
+
+/* Inhalt */
+.pm__inner {
+  padding: clamp(1.5rem, 4vw, 3rem) clamp(1.25rem, 5vw, 3.5rem) clamp(2.5rem, 6vw, 4rem);
+}
+
+.pm__titel {
+  margin: 0.5rem 0 0.25rem;
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  font-weight: 500;
+  line-height: 1.15;
+}
+
+.pm__sub {
+  margin: 0 0 1.5rem;
+  font-size: clamp(1rem, 2vw, 1.15rem);
+  color: #555;
+}
+
+.pm__rt {
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.pm__rt :where(h1, h2, h3) {
+  line-height: 1.25;
+}
+
+.pm__rt :where(p, ul, ol) {
+  margin: 0 0 1rem;
+}
+
+.pm__freitext {
+  font-size: 16px;
+  white-space: pre-wrap;
+  color: #333;
+}
+
+.pm__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+
+.pm__link {
+  display: inline-block;
+  padding: 0.7rem 1.4rem;
+  border: 1px solid #1a1a1a;
+  border-radius: 2px;
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: #1a1a1a;
+  transition: background 0.25s ease, color 0.25s ease;
+}
+
+.pm__link:hover,
+.pm__link:focus-visible {
+  background: #1a1a1a;
+  color: #fff;
+  outline: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pm__backdrop,
+  .pm__sheet {
+    transition: none;
+  }
+}
