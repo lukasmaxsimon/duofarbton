@@ -69,6 +69,8 @@ export interface Config {
   collections: {
     users: User;
     media: Media;
+    programme: Programme;
+    pages: Page;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -78,6 +80,8 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    programme: ProgrammeSelect<false> | ProgrammeSelect<true>;
+    pages: PagesSelect<false> | PagesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -162,6 +166,112 @@ export interface Media {
   focalY?: number | null;
 }
 /**
+ * Konzertprogramme des Duos — Reihenfolge im Slider über das Feld „Position".
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "programme".
+ */
+export interface Programme {
+  id: number;
+  titel: string;
+  /**
+   * Kurzer Untertitel, der auf der Programm-Card unter dem Titel erscheint.
+   */
+  kartenUntertitel?: string | null;
+  bild?: (number | null) | Media;
+  /**
+   * Das eigentliche Programm (Werke, Reihenfolge, Beschreibung).
+   */
+  programminhalt?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Zusätzliche Freitextfläche (z. B. Anmerkungen, Besetzung, Dauer).
+   */
+  freitext?: string | null;
+  /**
+   * Link zum Trailer-Video (z. B. YouTube/Vimeo).
+   */
+  trailerUrl?: string | null;
+  /**
+   * Link zum Programm-PDF.
+   */
+  programmPdfUrl?: string | null;
+  /**
+   * An welcher Stelle dieses Programm im Programm-Slider erscheint (1 = erste Position).
+   */
+  position: number;
+  /**
+   * Wird automatisch aus dem Titel erzeugt, falls leer.
+   */
+  slug?: string | null;
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Statische Seiten der Website (Home, Das Duo, Live, Impressum, Datenschutz …).
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages".
+ */
+export interface Page {
+  id: number;
+  titel: string;
+  /**
+   * Wird automatisch aus dem Titel erzeugt, falls leer.
+   */
+  slug?: string | null;
+  /**
+   * Der Seiteninhalt.
+   */
+  inhalt?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+  };
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -192,6 +302,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'media';
         value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'programme';
+        value: number | Programme;
+      } | null)
+    | ({
+        relationTo: 'pages';
+        value: number | Page;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -274,6 +392,49 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "programme_select".
+ */
+export interface ProgrammeSelect<T extends boolean = true> {
+  titel?: T;
+  kartenUntertitel?: T;
+  bild?: T;
+  programminhalt?: T;
+  freitext?: T;
+  trailerUrl?: T;
+  programmPdfUrl?: T;
+  position?: T;
+  slug?: T;
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages_select".
+ */
+export interface PagesSelect<T extends boolean = true> {
+  titel?: T;
+  slug?: T;
+  inhalt?: T;
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

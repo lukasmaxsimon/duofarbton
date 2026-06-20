@@ -16,6 +16,7 @@
     "migrate:create": "cross-env NODE_OPTIONS=--no-deprecation payload migrate:create",
     "migrate:status": "cross-env NODE_OPTIONS=--no-deprecation payload migrate:status",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
+    "seed:pages": "cross-env NODE_OPTIONS=--no-deprecation tsx src/seed/pages.ts",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
     "test": "pnpm run test:int && pnpm run test:e2e",
     "test:e2e": "cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm\" playwright test --config=playwright.config.ts",
@@ -23,7 +24,9 @@
   },
   "dependencies": {
     "@payloadcms/db-postgres": "3.85.1",
+    "@payloadcms/live-preview-react": "3.85.1",
     "@payloadcms/next": "3.85.1",
+    "@payloadcms/plugin-seo": "3.85.1",
     "@payloadcms/richtext-lexical": "3.85.1",
     "@payloadcms/storage-vercel-blob": "3.85.1",
     "@payloadcms/ui": "3.85.1",
