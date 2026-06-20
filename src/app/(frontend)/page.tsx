@@ -1,59 +1,53 @@
-import { headers as getHeaders } from 'next/headers.js'
-import Image from 'next/image'
 import { getPayload } from 'payload'
 import React from 'react'
-import { fileURLToPath } from 'url'
 
 import config from '@/payload.config'
+import type { Media } from '@/payload-types'
+import { HomeHero } from './components/HomeHero'
+import { ProgrammeCarousel, type ProgrammItem } from './components/ProgrammeCarousel'
 import './styles.css'
+import './home.css'
 
 export default async function HomePage() {
-  const headers = await getHeaders()
-  const payloadConfig = await config
-  const payload = await getPayload({ config: payloadConfig })
-  const { user } = await payload.auth({ headers })
+  const payload = await getPayload({ config: await config })
 
-  const fileURL = `vscode://file/${fileURLToPath(import.meta.url)}`
+  const { docs } = await payload.find({
+    collection: 'programme',
+    sort: 'position',
+    depth: 1,
+    limit: 50,
+  })
+
+  const programme: ProgrammItem[] = docs.flatMap((p) => {
+    if (!p.slug) return []
+
+    const bild = typeof p.bild === 'object' ? (p.bild as Media) : null
+    return [{
+      titel: p.titel,
+      untertitel: p.kartenUntertitel,
+      slug: p.slug,
+      bildUrl: bild?.url ?? null,
+      bildAlt: bild?.alt ?? null,
+      programminhalt: p.programminhalt,
+      freitext: p.freitext,
+      trailerUrl: p.trailerUrl,
+      programmPdfUrl: p.programmPdfUrl,
+    }]
+  })
 
   return (
-    <div className="home">
-      <div className="content">
-        <picture>
-          <source srcSet="https://raw.githubusercontent.com/payloadcms/payload/3.x/packages/ui/src/assets/payload-favicon.svg" />
-          <Image
-            alt="Payload Logo"
-            height={65}
-            src="https://raw.githubusercontent.com/payloadcms/payload/3.x/packages/ui/src/assets/payload-favicon.svg"
-            width={65}
-          />
-        </picture>
-        {!user && <h1>Welcome to your new project.</h1>}
-        {user && <h1>Welcome back, {user.email}</h1>}
-        <div className="links">
-          <a
-            className="admin"
-            href={payloadConfig.routes.admin}
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            Go to admin panel
-          </a>
-          <a
-            className="docs"
-            href="https://payloadcms.com/docs"
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            Documentation
-          </a>
-        </div>
-      </div>
-      <div className="footer">
-        <p>Update this page by editing</p>
-        <a className="codeLink" href={fileURL}>
-          <code>app/(frontend)/page.tsx</code>
-        </a>
-      </div>
-    </div>
+    <>
+      {/* Fullscreen-Banner + Logo + Scroll-Fade ins Weiße */}
+      <HomeHero />
+
+      {/* Erste „Bildschirmhöhe": zeigt das fixierte Hero-Bild. */}
+      <section className="home-spacer" />
+
+      {/* Zweite Section: Programme als expandierendes Carousel. */}
+      <section className="home-programme">
+        <h2 className="home-programme__titel">Programme</h2>
+        <ProgrammeCarousel items={programme} />
+      </section>
+    </>
   )
 }
