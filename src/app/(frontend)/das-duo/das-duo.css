@@ -1,0 +1,166 @@
+/* "Das Duo" — Frontend nach Vorlage duofarbton.de/das-duo.
+   Heller, eleganter Look; Texte/Bilder werden später über das CMS pflegbar
+   (aktuell Texte statisch, Bilder dynamisch aus der Media-Collection). */
+
+.duo {
+  --bg: rgb(247, 248, 249);
+  --text: rgb(34, 34, 34);
+  --muted: rgb(110, 110, 118);
+  --soft: rgb(64, 64, 70);
+  --line: rgba(0, 0, 0, 0.1);
+  --dark: rgb(18, 18, 20);
+
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* Globale h1/p-Regeln (styles.css) hier zurücksetzen. */
+.duo h1,
+.duo h2,
+.duo h3,
+.duo p {
+  margin: 0;
+}
+
+/* ---------- Hero ---------- */
+
+.duo-hero {
+  position: relative;
+  height: min(82vh, 760px);
+  min-height: 440px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.duo-hero img {
+  object-fit: cover;
+}
+
+.duo-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.35));
+}
+
+.duo-hero h1 {
+  position: relative;
+  z-index: 1;
+  color: #fff;
+  font-size: clamp(44px, 9vw, 120px);
+  line-height: 1;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-shadow: 0 2px 40px rgba(0, 0, 0, 0.35);
+}
+
+/* ---------- Intro ---------- */
+
+.duo-intro {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: clamp(56px, 9vw, 120px) 24px;
+}
+
+.duo-intro p {
+  font-size: clamp(17px, 1.4vw, 20px);
+  line-height: 1.75;
+  color: var(--soft);
+}
+
+.duo-intro p + p {
+  margin-top: 26px;
+}
+
+/* ---------- Künstler-Sektionen ---------- */
+
+.duo-person {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: clamp(40px, 7vw, 96px) 24px;
+  display: grid;
+  grid-template-columns: minmax(0, 440px) 1fr;
+  gap: clamp(32px, 5vw, 76px);
+  align-items: start;
+}
+
+.duo-person.reverse {
+  grid-template-columns: 1fr minmax(0, 440px);
+}
+
+.duo-person.reverse .duo-person-media {
+  order: 2;
+}
+
+.duo-person-media img {
+  width: 100%;
+  height: auto;
+  filter: grayscale(100%);
+}
+
+.duo-person .eyebrow {
+  font-size: 13px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+.duo-person h2 {
+  font-size: clamp(30px, 4vw, 48px);
+  line-height: 1.05;
+  font-weight: 800;
+  margin-bottom: 26px;
+}
+
+.duo-person p {
+  color: var(--soft);
+  line-height: 1.7;
+}
+
+.duo-person p + p {
+  margin-top: 18px;
+}
+
+/* ---------- Scroll-Animation ---------- */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+  will-change: opacity, transform;
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* ---------- Responsiv ---------- */
+
+@media (max-width: 880px) {
+  .duo-person,
+  .duo-person.reverse {
+    grid-template-columns: 1fr;
+  }
+
+  .duo-person.reverse .duo-person-media {
+    order: 0;
+  }
+
+  .duo-person-media {
+    max-width: 440px;
+  }
+}

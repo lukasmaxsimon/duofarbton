@@ -1,0 +1,10 @@
+"$schema" = "https://conductor.build/schemas/settings.repo.schema.json"
+
+# Jeder Workspace bekommt von Conductor einen eigenen Port-Bereich ($CONDUCTOR_PORT).
+# So können mehrere Workspaces ihr Frontend gleichzeitig laufen lassen, ohne
+# sich auf Port 3001 in die Quere zu kommen. Die Datenbank liegt remote (Neon),
+# es gibt keine lokale geteilte Ressource → concurrent ist sicher.
+[scripts]
+setup = "pnpm install"
+run = "PORT=$CONDUCTOR_PORT pnpm dev"
+run_mode = "concurrent"
