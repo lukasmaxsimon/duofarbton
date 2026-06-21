@@ -1,6 +1,5 @@
 'use client'
 
-import Image from 'next/image'
 import React, { useState } from 'react'
 
 import type { Programme } from '@/payload-types'
@@ -62,12 +61,12 @@ export function ProgrammeCarousel({ items }: { items: ProgrammItem[] }) {
             >
               {/* Bild */}
               {p.bildUrl && (
-                <Image
+                // Payload-Media direkt laden; vermeidet lokale Next-Image-Optimizer-Brüche.
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
                   className="pc-panel__img"
                   src={p.bildUrl}
                   alt={p.bildAlt || p.titel}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 70vw"
                 />
               )}
 
