@@ -25,10 +25,16 @@ const isLocalDatabase = /localhost|127\.0\.0\.1/.test(databaseUrl)
 const serverURL = process.env.PAYLOAD_PUBLIC_SERVER_URL
 
 // PAYLOAD_SECRET signiert Login-JWTs/Cookies — in Produktion zwingend setzen.
-const secret = process.env.PAYLOAD_SECRET || ''
-if (!secret && process.env.NODE_ENV === 'production') {
+// Lokal darf Payload mit einem stabilen Dev-Fallback starten, damit `pnpm dev`
+// nicht an einer fehlenden Env-Datei scheitert.
+const isProductionRuntime = process.env.NODE_ENV === 'production'
+if (!process.env.PAYLOAD_SECRET && isProductionRuntime) {
   throw new Error('PAYLOAD_SECRET fehlt — in Produktion zwingend setzen.')
 }
+if (!process.env.PAYLOAD_SECRET) {
+  process.env.PAYLOAD_SECRET = 'duofarbton-local-dev-secret'
+}
+const secret = process.env.PAYLOAD_SECRET
 
 // Doc-Form für die SEO-Generatoren (Programme + Seiten teilen titel/slug).
 type SeoDoc = { titel?: string | null; slug?: string | null }
