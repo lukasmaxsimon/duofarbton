@@ -17,7 +17,7 @@ export const metadata = {
  * Bilder sind vorübergehend fest verdrahtet und werden später über das CMS
  * pflegbar.
  */
-const duoImage = '/api/media/file/DuoFarbton_extend.jpg'
+const duoImage = '/images/DuoFarbton_extend.jpg'
 
 export default function DasDuoPage() {
   return (
