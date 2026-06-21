@@ -21,6 +21,9 @@ const nextConfig: NextConfig = {
       {
         pathname: '/api/media/file/**',
       },
+      {
+        pathname: '/images/**',
+      },
     ],
     // … bzw. direkt aus Vercel Blob (Produktion).
     remotePatterns: [
