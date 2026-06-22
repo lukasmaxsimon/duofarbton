@@ -41,7 +41,7 @@
     "pg": "^8.22.0",
     "react": "19.2.7",
     "react-dom": "19.2.7",
-    "sharp": "0.34.2"
+    "sharp": "0.35.2"
   },
   "devDependencies": {
     "@playwright/test": "1.58.2",
