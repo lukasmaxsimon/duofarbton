@@ -1,0 +1,261 @@
+/* --------------------------------------------------------------------------
+   Site-Header — morphendes Logo (links) + Navigations-Pill (Mitte) + Button (rechts).
+
+   Steuervariable: --nav-progress (0 → 1), gesetzt von HomeHero (Startseite)
+   bzw. fix auf 1 von SiteHeader (Unterseiten).
+
+   Ablauf:
+   1. Logo morpht aus der Hero-Mitte nach oben links (--logo-p, 0 → 1 über die
+      ersten 60 % des Fortschritts) und wird dabei weiß → schwarz.
+   2. Erst danach erscheinen Navigation + Button gemeinsam (--tail-p, 60 → 100 %).
+   Logo und Button stehen AUSSERHALB der weißen Pill (in der Pill nur die Nav).
+   -------------------------------------------------------------------------- */
+
+.site-header {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 100;
+  pointer-events: none; /* nur interaktive Kinder fangen Klicks */
+
+  --pill-top: 18px;
+  --pill-h: 64px;
+  --edge: clamp(16px, 4vw, 40px); /* Seitenabstand: Logo links, Button rechts */
+  --logo-end-w: 108px; /* Logobreite im Endzustand */
+  --logo-grow: 3.3; /* Hero-Logo = Endbreite * (1 + grow) */
+
+  --p: clamp(0, var(--nav-progress, 0), 1);
+  /* Phase 1: Logo-Morph (bis 60 %). */
+  --logo-p: clamp(0, calc(var(--p) / 0.6), 1);
+  /* Phase 2: Nav + Button erscheinen gemeinsam (60 % → 100 %). */
+  --tail-p: clamp(0, calc((var(--p) - 0.6) / 0.4), 1);
+}
+
+/* ---- Navigations-Pill (nur die Links, zentriert) ------------------------- */
+
+.site-header__pill {
+  position: fixed;
+  top: var(--pill-top);
+  left: 50%;
+  height: var(--pill-h);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-inline: clamp(28px, 4vw, 48px);
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, calc(var(--tail-p) * 0.1));
+  opacity: var(--tail-p);
+  /* Fährt von oben herein: tail-p=0 → oberhalb, tail-p=1 → Ruheposition. */
+  transform: translateX(-50%) translateY(calc((var(--tail-p) - 1) * 140%));
+  pointer-events: auto;
+}
+
+.site-header__nav {
+  display: flex;
+  align-items: center;
+  gap: clamp(1.75rem, 3.4vw, 3.25rem);
+}
+
+.site-header__link {
+  text-decoration: none;
+  color: #1a1a1a;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.25s ease;
+}
+
+.site-header__link:hover,
+.site-header__link:focus-visible {
+  border-color: #1a1a1a;
+  outline: none;
+}
+
+/* ---- Kontakt-Button (rechts, außerhalb der Pill) ------------------------- */
+
+.site-header__cta {
+  position: fixed;
+  top: calc(var(--pill-top) + var(--pill-h) / 2);
+  right: var(--edge);
+  /* Erscheint mit der Nav (tail-p), leichter Versatz von oben. */
+  transform: translateY(calc(-50% + (1 - var(--tail-p)) * -10px));
+  opacity: var(--tail-p);
+  display: inline-block;
+  padding: 0.6rem 1.4rem;
+  border-radius: 999px;
+  background: #1a1a1a;
+  color: #fff;
+  text-decoration: none;
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  pointer-events: auto;
+  transition: background 0.25s ease;
+}
+
+.site-header__cta:hover,
+.site-header__cta:focus-visible {
+  background: #000;
+  outline: none;
+}
+
+.site-header__cta:focus-visible {
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.25);
+}
+
+/* ---- Morphendes Logo (links) --------------------------------------------- */
+
+/* Am Endzustand (linker Rand, vertikal auf Pill-Höhe) verankert; mit (1 - logo-p)
+   zurück in die Hero-Mitte gerechnet. transform-origin: left center → linke
+   Kante bleibt beim Skalieren am Rand, vertikale Mitte ruht. */
+.brand-logo-link {
+  position: fixed;
+  top: calc(var(--pill-top) + var(--pill-h) / 2);
+  left: var(--edge);
+  width: var(--logo-end-w);
+  transform-origin: left center;
+  transform: translateY(-50%)
+    translate(
+      calc((1 - var(--logo-p)) * (50vw - (var(--logo-end-w) * (1 + var(--logo-grow))) / 2 - var(--edge))),
+      calc((1 - var(--logo-p)) * (63vh - var(--pill-top) - var(--pill-h) / 2))
+    )
+    scale(calc(1 + (1 - var(--logo-p)) * var(--logo-grow)));
+  pointer-events: auto;
+  will-change: transform;
+  /* Einstieg: nur Opacity einblenden (Transform bleibt dem Morph vorbehalten). */
+  opacity: 0;
+  animation: brand-logo-ein 1.2s ease 0.5s forwards;
+}
+
+.brand-logo-link .brand-logo {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Buchstaben: nur Füllfarbe — weiß auf dem Bild → schwarz, sobald oben (logo-p). */
+.brand-logo .ltr {
+  fill: #fff; /* Fallback ohne color-mix */
+  fill: color-mix(in srgb, #000 calc(var(--logo-p) * 100%), #fff);
+}
+
+@keyframes brand-logo-ein {
+  to {
+    opacity: 1;
+  }
+}
+
+/* ---- Mobil: Burger (rechts) + Overlay ------------------------------------ */
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.site-header__burger {
+  display: none;
+}
+
+.site-header__mobil {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .site-header {
+    --logo-end-w: 92px;
+    --logo-grow: 2.4;
+  }
+
+  /* Pill (Nav) + Button weichen dem Burger. */
+  .site-header__pill,
+  .site-header__cta {
+    display: none;
+  }
+
+  .site-header__burger {
+    position: fixed;
+    top: calc(var(--pill-top) + var(--pill-h) / 2);
+    right: var(--edge);
+    transform: translateY(calc(-50% + (1 - var(--tail-p)) * -10px));
+    opacity: var(--tail-p);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    pointer-events: auto;
+  }
+
+  .site-header__burger-icon {
+    position: relative;
+    display: block;
+    width: 22px;
+    height: 2px;
+    background: #1a1a1a;
+  }
+
+  .site-header__burger-icon::before,
+  .site-header__burger-icon::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    width: 22px;
+    height: 2px;
+    background: #1a1a1a;
+  }
+
+  .site-header__burger-icon::before {
+    top: -6px;
+  }
+
+  .site-header__burger-icon::after {
+    top: 6px;
+  }
+
+  .site-header__mobil[data-offen] {
+    display: block;
+    position: fixed;
+    inset: calc(var(--pill-top) + var(--pill-h) + 12px) 4vw auto;
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.16);
+    padding: 0.5rem 1rem;
+    pointer-events: auto;
+  }
+
+  .site-header__mobil nav {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .site-header__mobil-link {
+    padding: 0.95rem 0.5rem;
+    text-decoration: none;
+    color: #1a1a1a;
+    font-size: 1.05rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  .site-header__mobil-link:last-child {
+    border-bottom: none;
+  }
+}
+
+/* ---- Bewegung reduzieren ------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .brand-logo-link {
+    animation: none;
+    opacity: 1;
+  }
+}
