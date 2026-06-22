@@ -6,7 +6,6 @@
    Wichtig: <body> muss transparent sein, damit diese z-index:-1-Ebenen
    überhaupt sichtbar sind (sonst verdeckt der Body-Hintergrund sie). */
 .home-hero__bild-wrap,
-.home-hero__logo-wrap,
 .home-hero__scroll-hint,
 .home-hero__fade {
   position: fixed;
@@ -51,51 +50,6 @@
   to {
     opacity: 1;
     transform: scale(1);
-    filter: blur(0);
-  }
-}
-
-/* ---- Logo --------------------------------------------------------------- */
-
-/* Hülle: Position (zentriert, 30 % von unten) + Einstiegs-Animation. */
-.home-hero__logo-wrap {
-  left: 50%;
-  bottom: 30%;
-  transform: translateX(-50%);
-  opacity: 0;
-  animation: logo-rise 1.5s cubic-bezier(0.16, 1, 0.3, 1) 0.7s forwards;
-}
-
-/* Inline-SVG: feste Breite. overflow:hidden (SVG-Default) bildet die
-   „unsichtbare Kante", hinter der die Buchstaben oben verschwinden. */
-.home-hero__logo {
-  display: block;
-  width: min(462px, 66vw);
-  height: auto;
-}
-
-/* Einzelne Buchstaben: steigen beim Scrollen nach oben (eigener Startpunkt
-   --start, eigene Strecke --rise) und faden aus (eigenes Tempo --fade).
-   opacity wird vom Browser automatisch auf [0,1] begrenzt. */
-.home-hero__logo .ltr {
-  fill: #fff;
-  transform: translateY(
-    calc(-1 * max(0px, (var(--scroll-fade, 0) - var(--start, 0)) * var(--rise, 100px)))
-  );
-  opacity: calc(1 - (var(--scroll-fade, 0) - var(--start, 0)) * var(--fade, 2.5));
-  will-change: transform, opacity;
-}
-
-/* Einstieg: von unten aufsteigend, unscharf → scharf (Zentrierung beibehalten). */
-@keyframes logo-rise {
-  from {
-    opacity: 0;
-    transform: translateX(-50%) translateY(60px);
-    filter: blur(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
     filter: blur(0);
   }
 }
@@ -381,7 +335,6 @@
 
 @media (prefers-reduced-motion: reduce) {
   .home-hero__bild-wrap,
-  .home-hero__logo-wrap,
   .home-hero__scroll-hint,
   .home-hero__scroll-line {
     animation: none;
@@ -391,11 +344,6 @@
   .home-hero__bild {
     transform: none;
     filter: none;
-  }
-
-  .home-hero__logo .ltr {
-    transform: none;
-    opacity: 1;
   }
 
   /* Sanfte Überblendung ins Weiß bleibt erhalten (kein Bewegungsreiz). */

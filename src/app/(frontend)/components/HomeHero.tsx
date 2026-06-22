@@ -2,23 +2,24 @@
 
 import React, { useEffect } from 'react'
 
-import { LogoLetters } from './LogoLetters'
-
 /**
  * Fullscreen-Hero der Startseite — Konzept „Aus dem Weiß heraus, ins Weiß zurück".
  *
  * Einstieg (Page Transition):
  *   - Das Bild taucht aus Weiß auf: von unscharf + leicht herangezoomt zu scharf.
- *   - Das Logo steigt verzögert von unten auf und wird scharf.
  *   - Ein dezenter Scroll-Hinweis erscheint zum Schluss.
  *
  * Scroll-Animation:
- *   - Das Bild löst sich ins Weiß auf: sanfter Zoom-in + zunehmende Unschärfe,
- *     während eine weiße Fläche überblendet.
- *   - Das Logo wandert nach oben, schrumpft leicht und verblasst schneller.
+ *   - Das Bild löst sich ins Weiß auf: sanfter Zoom-in, während eine weiße Fläche
+ *     überblendet.
+ *   - Das Logo (jetzt im SiteHeader) wandert nach oben links, schrumpft zur Marke
+ *     und wechselt von Weiß zu Schwarz; die Navigations-Pill fährt von oben ein.
  *
- * Der Scroll-Fortschritt (0 → 1) wird als CSS-Variable `--scroll-fade` auf
- * <html> gesetzt; die eigentlichen Transforms passieren in CSS (home.css).
+ * Der Scroll-Fortschritt wird als CSS-Variablen auf <html> gesetzt:
+ *   - `--scroll-fade` (0→1 über 100vh): Bild-Auflösung ins Weiß.
+ *   - `--scroll-rest`  (verzögert ab REST_START): Zoom/Parallax + weiße Überblendung.
+ *   - `--nav-progress` (0→1 über NAV_VH): Logo-Morph + Einfahren der Navigation.
+ * Die eigentlichen Transforms passieren in CSS (home.css / header.css).
  */
 export function HomeHero() {
   useEffect(() => {
@@ -35,6 +36,10 @@ export function HomeHero() {
     // Höhe). 1.0 = fertig bei 100vh. Die nächste Section tritt unabhängig davon
     // bereits bei 70vh ein (Spacer-Höhe in home.css), also während des Fades.
     const ANIM_VH = 1.0
+
+    // Über welche Strecke der Navigations-Übergang (Logo-Morph + Pill) läuft.
+    // 0.6 = vollständig „eingerastet" bei 60vh — also früher als die Bild-Auflösung.
+    const NAV_VH = 0.6
 
     // Ziel = roher Scroll-Fortschritt (0 oben → 1 ganz weiß, über eine Viewport-Höhe).
     // current zieht dem Ziel sanft hinterher („scrub"/Trägheit, wie GSAP scrub) —
@@ -54,6 +59,10 @@ export function HomeHero() {
       root.style.setProperty('--scroll-fade', wert.toFixed(4))
       const rest = Math.min(1, Math.max(0, (wert - REST_START) / (1 - REST_START)))
       root.style.setProperty('--scroll-rest', rest.toFixed(4))
+      // `wert` entspricht (geglättet) scrollY/innerHeight (ANIM_VH = 1.0),
+      // daher reicht das Teilen durch NAV_VH für den Navigations-Fortschritt.
+      const nav = Math.min(1, wert / NAV_VH)
+      root.style.setProperty('--nav-progress', nav.toFixed(4))
     }
 
     const tick = () => {
@@ -100,6 +109,7 @@ export function HomeHero() {
       window.cancelAnimationFrame(raf)
       root.style.removeProperty('--scroll-fade')
       root.style.removeProperty('--scroll-rest')
+      root.style.removeProperty('--nav-progress')
     }
   }, [])
 
@@ -110,11 +120,7 @@ export function HomeHero() {
         <div className="home-hero__bild" />
       </div>
 
-      {/* Logo, zentriert, ca. 30 % vom unteren Rand. Buchstaben steigen beim
-          Scrollen einzeln nach oben und verschwinden hinter der oberen Kante. */}
-      <div className="home-hero__logo-wrap">
-        <LogoLetters />
-      </div>
+      {/* Das Logo lebt jetzt im SiteHeader (morpht beim Scrollen zur Marke). */}
 
       {/* Dezenter Scroll-Hinweis (erscheint nach dem Einstieg, verblasst beim Scrollen). */}
       <div className="home-hero__scroll-hint">

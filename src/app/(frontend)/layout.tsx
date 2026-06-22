@@ -1,7 +1,9 @@
 import React from 'react'
 
+import { SiteHeader } from './components/SiteHeader'
 import { SmoothScroll } from './components/SmoothScroll'
 import './styles.css'
+import './header.css'
 
 export const metadata = {
   description: 'Duo Farbton – Klavier und Marimba/Schlagwerk. Kammermusik neu erlebt.',
@@ -16,6 +18,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
       <body>
         {/* Globales Smooth-Scroll (Lenis). */}
         <SmoothScroll />
+        <SiteHeader />
         <main>{children}</main>
       </body>
     </html>
